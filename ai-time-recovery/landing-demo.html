@@ -1,0 +1,1846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>WorkflowAutomator · Client Journey Demo</title>
+    <style>
+        :root {
+            --bg-dark:    #0f172a;
+            --bg-panel:   #1e293b;
+            --bg-panel2:  #162032;
+            --text-light: #f8fafc;
+            --text-dim:   #94a3b8;
+            --text-muted: #64748b;
+            --accent:     #3b82f6;
+            --success:    #10b981;
+            --warn:       #f59e0b;
+            --phone-bezel:#1c1c1e;
+            --border:     #334155;
+            --border-soft:#2d3a4d;
+            --sys-font:   -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: var(--sys-font);
+            background: var(--bg-dark);
+            color: var(--text-light);
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ══════════════════════════════════════
+           HEADER
+        ══════════════════════════════════════ */
+        header {
+            background: var(--bg-panel);
+            padding: 0.65rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+            gap: 1rem;
+        }
+
+        .logo {
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            white-space: nowrap;
+        }
+        .logo em { color: var(--accent); font-style: normal; }
+
+        .subtitle {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-left: 0.75rem;
+            white-space: nowrap;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            flex-shrink: 0;
+        }
+
+        .pill-btn {
+            background: #253347;
+            border: 1px solid #3d5068;
+            color: var(--text-dim);
+            padding: 5px 11px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.18s;
+            white-space: nowrap;
+            line-height: 1;
+        }
+        .pill-btn:hover { background: #334155; color: var(--text-light); }
+        .pill-btn.active { background: #5b21b6; border-color: #7c3aed; color: white; }
+
+        .view-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.76rem;
+            color: var(--text-muted);
+        }
+
+        /* ══════════════════════════════════════
+           AUTHORITY STRIP  (Phase 4)
+        ══════════════════════════════════════ */
+        .authority-strip {
+            background: rgba(37, 99, 235, 0.07);
+            border-bottom: 1px solid rgba(59, 130, 246, 0.18);
+            padding: 0.35rem 1.5rem;
+            font-size: 0.76rem;
+            color: var(--text-muted);
+            text-align: center;
+            flex-shrink: 0;
+            letter-spacing: 0.008em;
+        }
+        .authority-strip strong { color: #93c5fd; font-weight: 500; }
+
+        /* ══════════════════════════════════════
+           MOBILE BAR
+        ══════════════════════════════════════ */
+        .mobile-bar {
+            display: none;
+            background: var(--bg-panel);
+            padding: 0.45rem 1rem;
+            border-bottom: 1px solid var(--border);
+            gap: 0.5rem;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .mobile-bar select {
+            flex: 1;
+            background: #253347;
+            border: 1px solid var(--border);
+            color: var(--text-light);
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        .mob-sys-btn {
+            background: #253347;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 6px 13px;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .mob-sys-btn.open { background: var(--accent); border-color: var(--accent); color: white; }
+
+        /* ══════════════════════════════════════
+           MAIN LAYOUT
+        ══════════════════════════════════════ */
+        main { flex: 1; display: flex; overflow: hidden; }
+
+        /* ── LEFT SCENE LIST ── */
+        .scene-list {
+            width: 220px;
+            background: var(--bg-panel2);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            flex-shrink: 0;
+            scrollbar-width: thin;
+            scrollbar-color: #334155 transparent;
+        }
+
+        .scene-item {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-soft);
+            cursor: pointer;
+            transition: background 0.15s, opacity 0.15s;
+            opacity: 0.5;
+            display: flex;
+            gap: 0.6rem;
+            align-items: center;
+        }
+        .scene-item:hover { background: #253347; opacity: 0.75; }
+        .scene-item.active {
+            background: #1a3260;
+            border-left: 3px solid var(--accent);
+            opacity: 1;
+            padding-left: calc(1rem - 1px);
+        }
+
+        /* Prelude scenes get a different accent colour */
+        .scene-item.prelude .scene-num { background: #475569; }
+        .scene-item.prelude.active { background: #1c2a40; border-left-color: #475569; }
+
+        /* Victory scene gets green accent */
+        .scene-item.victory.active { background: #0f2a1a; border-left-color: var(--success); }
+
+        .scene-num {
+            font-size: 0.65rem;
+            font-weight: 700;
+            background: #334155;
+            width: 20px; height: 20px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            transition: background 0.15s;
+        }
+        .scene-item.active .scene-num { background: var(--accent); }
+        .scene-item.victory.active .scene-num { background: var(--success); }
+
+        .scene-name {
+            font-size: 0.8rem;
+            font-weight: 500;
+            line-height: 1.25;
+            color: var(--text-dim);
+        }
+        .scene-item.active .scene-name { color: var(--text-light); }
+
+        /* ── STAGE ── */
+        .stage {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: radial-gradient(#1e2d45 1px, transparent 1px);
+            background-size: 22px 22px;
+            padding: 16px;
+        }
+
+        /* ── PHONE ── */
+        .phone {
+            width: 350px;
+            height: 690px;
+            background: #fff;
+            border-radius: 44px;
+            border: 10px solid var(--phone-bezel);
+            position: relative;
+            overflow: hidden;
+            box-shadow:
+                0 0 0 1px #475569,
+                0 32px 64px -16px rgba(0,0,0,0.65);
+            color: #1e293b;
+            display: flex;
+            flex-direction: column;
+            transition: box-shadow 0.4s;
+        }
+
+        /* Dynamic Island */
+        .phone::before {
+            content: '';
+            position: absolute;
+            top: 9px; left: 50%;
+            transform: translateX(-50%);
+            width: 96px; height: 26px;
+            background: var(--phone-bezel);
+            border-radius: 20px;
+            z-index: 20;
+        }
+
+        .status-bar {
+            height: 44px;
+            background: #f8fafc;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding: 0 22px 7px;
+            font-size: 11.5px;
+            font-weight: 600;
+            color: #374151;
+            flex-shrink: 0;
+        }
+        .status-icons { display: flex; gap: 4px; align-items: center; }
+
+        /* Dark status bar for prelude */
+        .phone.prelude-mode .status-bar { background: #1e293b; color: #94a3b8; }
+        .phone.prelude-mode { background: #f1f5f9; }
+
+        .screen-content { flex: 1; overflow-y: auto; position: relative; }
+
+        /* ── TRANSITIONS ── */
+        .screen-slide {
+            animation: screenIn 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+            min-height: 100%;
+        }
+
+        @keyframes screenIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── TAP CURSOR ── */
+        #tapCursor {
+            position: fixed;
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            background: rgba(59,130,246,0.3);
+            border: 2px solid rgba(59,130,246,0.8);
+            pointer-events: none;
+            z-index: 9999;
+            display: none;
+            transform: translate(-50%,-50%);
+        }
+        @keyframes tapRing {
+            0%   { transform: translate(-50%,-50%) scale(0.35); opacity: 1; }
+            100% { transform: translate(-50%,-50%) scale(1.7);  opacity: 0; }
+        }
+
+        /* ══════════════════════════════════════
+           PHONE UI COMPONENTS
+        ══════════════════════════════════════ */
+        .app-bar {
+            padding: 0.85rem 1rem;
+            background: #fff;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+        .app-bar h3 { font-size: 0.9rem; font-weight: 600; color: #0f172a; }
+        .app-bar .ts { font-size: 0.68rem; color: var(--text-muted); }
+
+        .avatar {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: #0f172a;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 10px; font-weight: 700; color: white;
+            flex-shrink: 0;
+        }
+
+        .msg-thread { padding: 1rem; display: flex; flex-direction: column; gap: 0.8rem; }
+        .msg {
+            max-width: 82%;
+            padding: 9px 13px;
+            border-radius: 18px;
+            font-size: 0.85rem;
+            line-height: 1.45;
+        }
+        .msg.recv { background: #f1f5f9; align-self: flex-start; border-bottom-left-radius: 4px; color: #1e293b; }
+        .msg.sent { background: #2563eb; color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .msg.sent.green { background: #16a34a; }
+
+        .mail-bar {
+            padding: 0.8rem 1rem;
+            background: #1d4ed8;
+            display: flex; align-items: center; gap: 9px;
+            flex-shrink: 0;
+        }
+        .mail-bar h3 { font-size: 0.9rem; font-weight: 600; color: white; }
+
+        .email-meta {
+            padding: 0.8rem 1rem;
+            border-bottom: 1px solid #f1f5f9;
+            background: #f8fafc;
+        }
+        .email-meta h4 { font-size: 0.88rem; margin-bottom: 3px; color: #0f172a; }
+        .email-meta .from { font-size: 0.74rem; color: var(--text-muted); }
+
+        .email-body { padding: 1.1rem 1rem; font-size: 0.88rem; line-height: 1.5; color: #1e293b; }
+
+        .phn-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            padding: 11px 18px;
+            border-radius: 9px;
+            border: none;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 8px;
+            transition: transform 0.1s, filter 0.15s;
+            line-height: 1;
+        }
+        .phn-btn:active, .phn-btn.pressing { transform: scale(0.965); filter: brightness(0.9); }
+        .phn-btn.primary { background: #2563eb; color: white; }
+        .phn-btn.success { background: #16a34a; color: white; }
+        .phn-btn.dark    { background: #0f172a; color: white; }
+        .phn-btn.indigo  { background: #4f46e5; color: white; }
+        .phn-btn.ghost   { background: transparent; border: 1px solid #e2e8f0; color: #64748b; }
+
+        .field-group { margin-bottom: 0.8rem; }
+        .field-group label {
+            display: block;
+            font-size: 0.73rem; font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 3px;
+        }
+        .field-group input, .field-group select {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 7px;
+            font-size: 0.85rem;
+            background: #f8fafc;
+            color: #1e293b;
+        }
+
+        /* ── STAT CARD ── */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 11px 13px;
+            border: 1px solid #e2e8f0;
+        }
+        .stat-card .val { font-size: 1.5rem; font-weight: 800; color: #0f172a; line-height: 1; }
+        .stat-card .lbl { font-size: 0.68rem; color: var(--text-muted); margin-top: 3px; }
+        .stat-card .val.green { color: #16a34a; }
+
+        .job-row {
+            padding: 9px 12px;
+            border-bottom: 1px solid #f8fafc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .job-row:last-child { border-bottom: none; }
+        .job-row .jname { font-size: 0.83rem; font-weight: 600; color: #0f172a; }
+        .job-row .jmeta { font-size: 0.7rem; color: var(--text-muted); }
+
+        .badge {
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 5px;
+            white-space: nowrap;
+        }
+        .badge.paid   { background: #dcfce7; color: #166534; }
+        .badge.review { background: #fef3c7; color: #92400e; }
+
+        /* ══════════════════════════════════════
+           SYSTEM PANEL
+        ══════════════════════════════════════ */
+        .system-panel {
+            width: 272px;
+            background: var(--bg-panel);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .panel-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.15rem 1.1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.1rem;
+            scrollbar-width: thin;
+            scrollbar-color: #334155 transparent;
+        }
+
+        .panel-section h4 {
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.6rem;
+        }
+
+        .tool-tag {
+            display: inline-flex;
+            background: #253347;
+            padding: 3px 9px;
+            border-radius: 4px;
+            font-size: 0.73rem;
+            margin: 0 4px 4px 0;
+            border: 1px solid #3d5068;
+            color: var(--text-dim);
+        }
+
+        /* ── IMPACT LOG ── */
+        .impact-log {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .i-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            line-height: 1.35;
+            color: #3d5068;
+            transition: color 0.25s;
+        }
+        .i-row.done    { color: var(--text-muted); }
+        .i-row.current { color: var(--text-light); }
+
+        .i-dot {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: #253347;
+            flex-shrink: 0;
+            margin-top: 4px;
+            transition: background 0.25s, box-shadow 0.25s;
+        }
+        .i-row.done .i-dot    { background: var(--success); }
+        .i-row.current .i-dot { background: var(--accent); box-shadow: 0 0 5px var(--accent); }
+
+        /* ── TECH ACCORDION ── */
+        .tech-footer {
+            border-top: 1px solid var(--border);
+            padding: 0.85rem 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .tech-toggle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            user-select: none;
+        }
+        .tech-toggle:hover { color: var(--text-dim); }
+
+        .tech-list {
+            margin-top: 0.6rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+            font-size: 0.77rem;
+            color: var(--text-muted);
+            list-style: none;
+        }
+        .tech-list li { display: flex; align-items: center; gap: 0.4rem; }
+        .tech-dot {
+            width: 5px; height: 5px;
+            border-radius: 50%;
+            background: #334155;
+            flex-shrink: 0;
+        }
+
+        /* ══════════════════════════════════════
+           PLAYER FOOTER
+        ══════════════════════════════════════ */
+        footer {
+            background: var(--bg-panel);
+            padding: 0.6rem 1.25rem;
+            padding-bottom: calc(0.6rem + env(safe-area-inset-bottom, 0px));
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            flex-shrink: 0;
+            z-index: 99999;
+            position: relative;
+        }
+
+        .ctrl-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            width: 34px; height: 34px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%;
+            transition: background 0.15s, color 0.15s;
+            flex-shrink: 0;
+        }
+        .ctrl-btn:hover { background: #253347; color: var(--text-light); }
+        .ctrl-btn svg { width: 18px; height: 18px; fill: currentColor; }
+
+        .play-btn {
+            width: 38px; height: 38px;
+            background: var(--accent);
+            color: white;
+            border-radius: 50%;
+        }
+        .play-btn:hover { background: #1d4ed8; color: white; }
+        .play-btn svg { width: 20px; height: 20px; }
+
+        .player-mid {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 0;
+        }
+
+        .caption-line {
+            font-size: 0.76rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1;
+        }
+
+        .scrubber-wrap {
+            height: 4px;
+            background: #253347;
+            border-radius: 2px;
+            cursor: pointer;
+            position: relative;
+        }
+        .scrubber-wrap:hover { height: 5px; }
+        .scrubber-fill {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.1s linear;
+            pointer-events: none;
+        }
+
+        .time-dsp {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .speed-btn {
+            background: #253347;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.15s;
+            flex-shrink: 0;
+        }
+        .speed-btn:hover { background: #334155; color: var(--text-light); }
+
+        /* ══════════════════════════════════════
+           CLIENT-ONLY VIEW
+        ══════════════════════════════════════ */
+        .client-view .system-panel,
+        .client-view .scene-list { display: none; }
+        .client-view .stage { background: #080f1e; }
+
+        /* ══════════════════════════════════════
+           MOBILE SYSTEM OVERLAY
+        ══════════════════════════════════════ */
+        .mob-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(8, 15, 30, 0.97);
+            z-index: 200;
+            overflow-y: auto;
+            padding: 1.5rem;
+        }
+        .mob-overlay.open { display: block; }
+
+        .mob-close {
+            position: sticky;
+            top: 0;
+            float: right;
+            background: #334155;
+            border: none;
+            color: var(--text-light);
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.82rem;
+            margin-bottom: 1rem;
+        }
+
+        /* ══════════════════════════════════════
+           PRELUDE SCREEN STYLES
+        ══════════════════════════════════════ */
+        .inbox-row {
+            padding: 10px 14px;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .inbox-av {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.65rem; font-weight: 700;
+            flex-shrink: 0;
+        }
+        .inbox-name { font-size: 0.83rem; font-weight: 600; color: #0f172a; }
+        .inbox-preview { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .inbox-time { font-size: 0.68rem; color: #94a3b8; white-space: nowrap; }
+        .unread-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        /* ══════════════════════════════════════
+           UTILITIES
+        ══════════════════════════════════════ */
+        .hidden { display: none !important; }
+
+        /* ══════════════════════════════════════
+           RESPONSIVE
+        ══════════════════════════════════════ */
+        /* ── AUDIO TOAST ── */
+        #audioToast {
+            position: fixed;
+            bottom: 68px;
+            left: 50%;
+            transform: translateX(-50%) translateY(8px);
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: var(--text-dim);
+            font-size: 0.76rem;
+            padding: 7px 14px;
+            border-radius: 8px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s, transform 0.2s;
+            z-index: 500;
+        }
+        #audioToast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* ── VO BADGE ── */
+        .vo-badge {
+            font-size: 0.67rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 5px;
+            white-space: nowrap;
+            letter-spacing: 0.04em;
+            flex-shrink: 0;
+        }
+        .vo-badge.ready { background: #0f2a1a; color: #4ade80; border: 1px solid #166534; }
+        .vo-badge.off   { background: #1e293b; color: #475569; border: 1px solid #334155; }
+
+        @media (max-width: 900px) {
+            .scene-list, .system-panel { display: none; }
+            .subtitle, .scenario-btn  { display: none; }
+            .mobile-bar  { display: flex; }
+            .phone {
+                width: min(88vw, 390px);
+                height: min(calc(88vw * 1.97), 80vh);
+                border-width: 8px;
+            }
+            .stage { padding: 8px; }
+            footer { gap: 0.4rem; padding: 0.5rem 0.75rem; }
+            .caption-line { font-size: 0.72rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="tapCursor"></div>
+<div id="audioToast"></div>
+
+<audio id="demoAudio" preload="auto"></audio>
+
+<!-- ══════════════════════════════════════
+     HEADER
+══════════════════════════════════════ -->
+<header>
+    <div style="display:flex;align-items:center;">
+        <div class="logo">Workflow<em>Automator</em></div>
+        <span class="subtitle">Troy's Pressure Washing · Jordan Lee</span>
+    </div>
+    <div class="header-right">
+        <button class="pill-btn" id="reschedBtn" onclick="toggleReschedule()">
+            &#9654; Reschedule Scenario
+        </button>
+        <div class="view-toggle">
+            <label for="viewSwitch">System View</label>
+            <input type="checkbox" id="viewSwitch" checked>
+        </div>
+    </div>
+</header>
+
+<!-- PHASE 4: Authority framing -->
+<div class="authority-strip">
+    Everything you're about to see runs <strong>without manual follow-up</strong>.
+</div>
+
+<!-- Mobile bar -->
+<div class="mobile-bar" id="mobileBar">
+    <select id="mobSelect" onchange="jumpToScene(+this.value)"></select>
+    <button class="mob-sys-btn" id="mobSysBtn" onclick="toggleMobOverlay()">System</button>
+</div>
+
+<!-- ══════════════════════════════════════
+     MAIN
+══════════════════════════════════════ -->
+<main id="mainWrap">
+
+    <nav class="scene-list" id="sceneList"></nav>
+
+    <div class="stage">
+        <div class="phone" id="phoneShell">
+            <div class="status-bar">
+                <span id="clock">9:00</span>
+                <div class="status-icons">
+                    <svg width="13" height="9" viewBox="0 0 13 9" fill="currentColor">
+                        <rect x="0" y="3" width="2" height="6" rx="0.5" opacity="0.4"/>
+                        <rect x="3" y="2" width="2" height="7" rx="0.5" opacity="0.6"/>
+                        <rect x="6" y="1" width="2" height="8" rx="0.5" opacity="0.8"/>
+                        <rect x="9" y="0" width="2" height="9" rx="0.5"/>
+                    </svg>
+                    <span style="font-size:10.5px;font-weight:600;">5G</span>
+                    <svg width="22" height="10" viewBox="0 0 22 10" fill="none">
+                        <rect x="0.5" y="0.5" width="17" height="9" rx="1.8" stroke="currentColor" stroke-width="1" opacity="0.5"/>
+                        <rect x="1.5" y="1.5" width="12" height="7" rx="1.2" fill="#16a34a"/>
+                        <path d="M18.5 3v4c.9-.44 1.5-1.2 1.5-2s-.6-1.56-1.5-2z" fill="currentColor" opacity="0.5"/>
+                    </svg>
+                </div>
+            </div>
+            <div id="screenContent" class="screen-content"></div>
+        </div>
+    </div>
+
+    <aside class="system-panel" id="systemPanel">
+        <div class="panel-body">
+
+            <div class="panel-section">
+                <h4>Current Step</h4>
+                <div id="pName" style="font-weight:700;font-size:0.95rem;margin-bottom:4px;color:var(--text-light);"></div>
+                <div id="pDesc" style="font-size:0.8rem;line-height:1.4;color:var(--text-dim);"></div>
+            </div>
+
+            <div class="panel-section">
+                <h4>Tools Active</h4>
+                <div id="pTools"></div>
+            </div>
+
+            <div class="panel-section">
+                <h4>What Happened</h4>
+                <div class="impact-log" id="pImpact"></div>
+            </div>
+
+        </div>
+
+        <div class="tech-footer">
+            <div class="tech-toggle" onclick="toggleTech()">
+                <span>Under the Hood</span>
+                <span id="techArrow">&#9654;</span>
+            </div>
+            <ul class="tech-list hidden" id="techList">
+                <li><div class="tech-dot"></div>CRM — HubSpot / HighLevel</li>
+                <li><div class="tech-dot"></div>Zapier / Make.com</li>
+                <li><div class="tech-dot"></div>Stripe Payments</li>
+                <li><div class="tech-dot"></div>Twilio SMS</li>
+                <li><div class="tech-dot"></div>Google / Outlook Calendar</li>
+            </ul>
+        </div>
+    </aside>
+
+</main>
+
+<!-- ══════════════════════════════════════
+     PLAYER FOOTER
+══════════════════════════════════════ -->
+<footer>
+    <button class="ctrl-btn" id="prevBtn"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg></button>
+    <button class="ctrl-btn play-btn" id="playBtn">
+        <svg id="playIcon"  viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        <svg id="pauseIcon" class="hidden" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+    </button>
+    <button class="ctrl-btn" id="nextBtn"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
+
+    <div class="player-mid">
+        <div class="caption-line" id="caption">Press play to begin.</div>
+        <div class="scrubber-wrap" id="scrubber">
+            <div class="scrubber-fill" id="scrubFill"></div>
+        </div>
+    </div>
+
+    <div class="time-dsp" id="timeDsp">0:00 / 0:00</div>
+    <button class="speed-btn" id="speedBtn" onclick="cycleSpeed()">1x</button>
+    <div id="voBadge" class="vo-badge off">VO</div>
+</footer>
+
+<!-- ══════════════════════════════════════
+     MOBILE OVERLAY
+══════════════════════════════════════ -->
+<div class="mob-overlay" id="mobOverlay">
+    <button class="mob-close" onclick="toggleMobOverlay()">&#10005; Close</button>
+    <div style="clear:both;"></div>
+    <div style="margin-bottom:1.2rem;">
+        <h4 style="color:var(--text-muted);text-transform:uppercase;font-size:0.65rem;letter-spacing:0.1em;margin-bottom:0.5rem;">Current Step</h4>
+        <div id="mName" style="font-weight:700;font-size:0.95rem;margin-bottom:4px;"></div>
+        <div id="mDesc" style="font-size:0.82rem;color:var(--text-dim);line-height:1.4;"></div>
+    </div>
+    <div>
+        <h4 style="color:var(--text-muted);text-transform:uppercase;font-size:0.65rem;letter-spacing:0.1em;margin-bottom:0.6rem;">What Happened</h4>
+        <div class="impact-log" id="mImpact"></div>
+    </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   IMPACT EVENTS — client-readable log
+═══════════════════════════════════════════ */
+const IMPACT = [
+    "Lead captured",
+    "Booking link texted to Jordan",
+    "Jordan picked Friday 3:00 PM",
+    "Calendar invite sent",
+    "Intake form sent — 2 photos received",
+    "Estimate emailed ($280)",
+    "Jordan approved estimate",
+    "Invoice created &amp; sent",
+    "Payment received — $280 collected",
+    "Reminder sent &#8594; Jordan confirmed",
+    "Before/after sent + review requested",
+    "All records archived in CRM",
+];
+
+/* ═══════════════════════════════════════════
+   SCENE DATA
+   impactAt: -1 = nothing done yet (prelude)
+             0+ = index of CURRENT event
+═══════════════════════════════════════════ */
+const normalScenes = [
+
+    /* ── PHASE 1: MANUAL MODE PRELUDE ──────── */
+    {
+        title: "Manual Mode",
+        dur: 5500,
+        caption: "This is how most service businesses manage new clients — manually, between jobs.",
+        tools: ["Phone", "Memory"],
+        impactAt: -1,
+        kind: "prelude",
+        html: `
+        <div class="screen-slide" style="background:#fff;min-height:100%;display:flex;flex-direction:column;">
+            <div style="padding:10px 14px 8px;background:#f8fafc;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:0.78rem;font-weight:700;color:#0f172a;letter-spacing:0.03em;">MESSAGES</span>
+                <span style="font-size:0.68rem;color:#ef4444;font-weight:600;">4 unread</span>
+            </div>
+
+            <div class="inbox-row" style="background:#eff6ff;">
+                <div class="inbox-av" style="background:#dbeafe;color:#1d4ed8;">JL</div>
+                <div style="flex:1;min-width:0;">
+                    <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+                        <span class="inbox-name">Jordan Lee</span>
+                        <span class="inbox-time">2h ago</span>
+                    </div>
+                    <div class="inbox-preview">Still waiting on that quote…</div>
+                </div>
+                <div class="unread-dot" style="background:#3b82f6;margin-left:6px;"></div>
+            </div>
+
+            <div class="inbox-row" style="background:#fffbeb;">
+                <div class="inbox-av" style="background:#fef3c7;color:#92400e;">MR</div>
+                <div style="flex:1;min-width:0;">
+                    <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+                        <span class="inbox-name">Maria R.</span>
+                        <span class="inbox-time">Yesterday</span>
+                    </div>
+                    <div class="inbox-preview" style="color:#b45309;">Did you get my payment?</div>
+                </div>
+                <div class="unread-dot" style="background:#f59e0b;margin-left:6px;"></div>
+            </div>
+
+            <div class="inbox-row">
+                <div class="inbox-av" style="background:#e2e8f0;color:#475569;">KT</div>
+                <div style="flex:1;min-width:0;">
+                    <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+                        <span class="inbox-name">K. Thomas</span>
+                        <span class="inbox-time">2d ago</span>
+                    </div>
+                    <div class="inbox-preview">Can we move to 2pm instead?</div>
+                </div>
+            </div>
+
+            <div class="inbox-row" style="background:#fef2f2;">
+                <div class="inbox-av" style="background:#fecaca;color:#991b1b;">!</div>
+                <div style="flex:1;min-width:0;">
+                    <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+                        <span class="inbox-name" style="color:#dc2626;">Invoice #38</span>
+                        <span class="inbox-time" style="color:#dc2626;">Overdue</span>
+                    </div>
+                    <div class="inbox-preview" style="color:#dc2626;">Never sent — forgot</div>
+                </div>
+                <div class="unread-dot" style="background:#ef4444;margin-left:6px;"></div>
+            </div>
+
+            <div class="inbox-row">
+                <div class="inbox-av" style="background:#e2e8f0;color:#475569;">SC</div>
+                <div style="flex:1;min-width:0;">
+                    <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+                        <span class="inbox-name">S. Chen</span>
+                        <span class="inbox-time">3d ago</span>
+                    </div>
+                    <div class="inbox-preview">Are we still on for Friday?</div>
+                </div>
+            </div>
+
+            <div style="margin-top:auto;padding:10px 14px;background:#f8fafc;border-top:1px solid #f1f5f9;text-align:center;">
+                <div style="font-size:0.72rem;color:#94a3b8;">5 open threads · all handled manually · between jobs</div>
+            </div>
+        </div>`
+    },
+
+    /* ── TRANSITION SCENE ──────────────────── */
+    {
+        title: "Now Automated",
+        dur: 3000,
+        caption: "Everything you're about to see runs without manual follow-up.",
+        tools: [],
+        impactAt: -1,
+        kind: "prelude",
+        html: `
+        <div class="screen-slide" style="background:#0f172a;min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:28px;">
+            <div style="width:1px;height:36px;background:linear-gradient(to bottom,transparent,#3b82f6);margin:0 auto 20px;"></div>
+            <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.15em;color:#475569;text-transform:uppercase;margin-bottom:10px;">Same client. Same business.</div>
+            <div style="font-size:1.15rem;font-weight:700;color:#f8fafc;line-height:1.4;">Now watch the same<br>process <span style="color:#3b82f6;">automated.</span></div>
+            <div style="width:1px;height:36px;background:linear-gradient(to bottom,#3b82f6,transparent);margin:20px auto 0;"></div>
+        </div>`
+    },
+
+    /* ── MAIN JOURNEY ──────────────────────── */
+    {
+        title: "Quote Request",
+        dur: 5000,
+        caption: "Jordan finds the website and submits a quote request.",
+        tools: ["Website Form", "CRM"],
+        impactAt: 0,
+        tapTarget: "tapSubmit",
+        html: `
+        <div class="screen-slide" style="padding:18px;">
+            <h2 style="color:#0f172a;font-size:1.1rem;margin-bottom:5px;">Troy's Precision<br>Pressure Washing</h2>
+            <p style="color:#64748b;font-size:0.78rem;margin-bottom:15px;">Free quote in minutes · Coalinga, CA</p>
+            <div class="field-group"><label>Name</label><input type="text" value="Jordan Lee" readonly></div>
+            <div class="field-group"><label>Service Needed</label><select disabled><option>Driveway + Gutters</option></select></div>
+            <div class="field-group"><label>Preferred Day</label><input type="text" value="Friday Afternoon" readonly></div>
+            <button class="phn-btn primary" id="tapSubmit">Request Quote &#8594;</button>
+        </div>`
+    },
+    {
+        title: "Instant Confirmation",
+        dur: 3000,
+        caption: "Immediate confirmation — no waiting, no wondering.",
+        tools: ["Automation"],
+        impactAt: 0,
+        html: `
+        <div class="screen-slide" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;padding:28px;">
+            <div style="width:60px;height:60px;background:#dcfce7;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:16px;">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <h3 style="color:#0f172a;margin-bottom:7px;font-size:1.05rem;">Request Received!</h3>
+            <p style="color:#64748b;font-size:0.85rem;line-height:1.55;">Thanks Jordan — we'll text you a booking link in about 30 seconds.</p>
+        </div>`
+    },
+    {
+        title: "SMS Booking Link",
+        dur: 5000,
+        caption: "Automation texts a booking link instantly. Troy didn't lift a finger.",
+        tools: ["SMS", "Automation"],
+        impactAt: 1,
+        html: `
+        <div class="screen-slide">
+            <div class="app-bar">
+                <div class="avatar">TP</div>
+                <div>
+                    <h3>Troy's Washing</h3>
+                    <div class="ts" style="color:#10b981;">Business Text</div>
+                </div>
+            </div>
+            <div class="msg-thread">
+                <div class="msg recv">Hey Jordan, got your request for driveway + gutters!<br><br>Pick a time that works:<br><br><span style="color:#2563eb;text-decoration:underline;">troyspressure.com/book/jordan</span><br><br><span style="font-size:0.7rem;color:#9ca3af;">Reply STOP to opt out.</span></div>
+            </div>
+        </div>`
+    },
+    {
+        title: "Booking Calendar",
+        dur: 6000,
+        caption: "Jordan selects a slot that syncs with Troy's real availability.",
+        tools: ["Calendar", "Scheduling"],
+        impactAt: 2,
+        tapTarget: "tapSlot",
+        html: `
+        <div class="screen-slide" style="padding:18px;">
+            <h3 style="text-align:center;color:#0f172a;margin-bottom:14px;">Select a Time</h3>
+            <div style="background:#f8fafc;padding:12px;border-radius:8px;border:1px solid #e2e8f0;margin-bottom:13px;">
+                <div style="font-weight:600;color:#0f172a;margin-bottom:2px;font-size:0.9rem;">Friday, Oct 27</div>
+                <div style="font-size:0.78rem;color:#64748b;">Driveway + Gutters · 1h 30m</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:7px;">
+                <button class="phn-btn ghost" style="margin:0;">2:30 PM</button>
+                <button class="phn-btn primary" id="tapSlot" style="margin:0;box-shadow:0 4px 14px rgba(37,99,235,0.35);">3:00 PM &#10003;</button>
+                <button class="phn-btn ghost" style="margin:0;">3:30 PM</button>
+            </div>
+            <p style="text-align:center;font-size:0.7rem;color:#94a3b8;margin-top:13px;">America / Los_Angeles</p>
+        </div>`
+    },
+    {
+        title: "Email Confirmation",
+        dur: 4500,
+        caption: "Booking confirmed. Calendar invite sent — no back-and-forth.",
+        tools: ["Email", "Calendar"],
+        impactAt: 3,
+        html: `
+        <div class="screen-slide" style="display:flex;flex-direction:column;">
+            <div class="mail-bar">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                <h3>Mail</h3>
+            </div>
+            <div class="email-meta">
+                <h4>Confirmed: Pressure Washing Estimate</h4>
+                <div class="from">From: Troy's Precision &lt;hello@troyspressure.com&gt;</div>
+            </div>
+            <div class="email-body">
+                <p style="margin-bottom:9px;">Hi Jordan,</p>
+                <p style="margin-bottom:13px;">You're booked for <strong>Friday at 3:00 PM</strong>.</p>
+                <div style="padding:11px;border:1px solid #e2e8f0;border-radius:8px;display:flex;gap:10px;margin-bottom:13px;">
+                    <div style="background:#fee2e2;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:6px;color:#dc2626;font-weight:700;font-size:0.95rem;flex-shrink:0;">27</div>
+                    <div>
+                        <div style="font-weight:600;font-size:0.83rem;color:#0f172a;">On-site Estimate · 123 Main St</div>
+                        <div style="font-size:0.75rem;color:#64748b;">Fri 3:00–4:30 PM</div>
+                        <div style="font-size:0.75rem;color:#16a34a;margin-top:3px;display:flex;align-items:center;gap:3px;">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="#16a34a"><polyline points="20 6 9 17 4 12"/></svg>
+                            Added to Calendar
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>`
+    },
+    {
+        title: "Pre-Work Intake",
+        dur: 4500,
+        caption: "System collects photos to refine the quote — no site visit required.",
+        tools: ["Forms", "File Upload"],
+        impactAt: 4,
+        tapTarget: "tapIntake",
+        html: `
+        <div class="screen-slide" style="padding:18px;">
+            <h3 style="color:#0f172a;margin-bottom:4px;">Quick Intake</h3>
+            <p style="font-size:0.78rem;color:#64748b;margin-bottom:15px;">Upload 2 photos so we can finalize your price before arriving.</p>
+            <div style="display:flex;gap:9px;margin-bottom:17px;">
+                <div style="flex:1;aspect-ratio:1;background:#f1f5f9;border-radius:8px;border:2px dashed #cbd5e1;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;position:relative;">
+                    <span style="font-size:1.5rem;">&#128663;</span>
+                    <div style="position:absolute;bottom:0;left:0;right:0;background:#10b981;color:white;font-size:0.62rem;text-align:center;padding:2px;font-weight:700;">DONE</div>
+                </div>
+                <div style="flex:1;aspect-ratio:1;background:#f1f5f9;border-radius:8px;border:2px dashed #cbd5e1;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;position:relative;">
+                    <span style="font-size:1.5rem;">&#127968;</span>
+                    <div style="position:absolute;bottom:0;left:0;right:0;background:#10b981;color:white;font-size:0.62rem;text-align:center;padding:2px;font-weight:700;">DONE</div>
+                </div>
+            </div>
+            <button class="phn-btn primary" id="tapIntake">Submit Intake</button>
+        </div>`
+    },
+
+    /* ── MONEY MOMENTS (longer durations) ── */
+    {
+        title: "Quote Delivery",
+        dur: 10000,   /* ← LINGERS */
+        caption: "Based on photos, a formal quote arrives in Jordan's inbox. One tap to approve.",
+        tools: ["Quoting", "Email"],
+        impactAt: 5,
+        tapTarget: "tapApprove",
+        html: `
+        <div class="screen-slide" style="display:flex;flex-direction:column;">
+            <div class="mail-bar">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                <h3>Mail</h3>
+            </div>
+            <div class="email-meta">
+                <h4>Your Estimate is Ready: $280</h4>
+                <div class="from">From: Troy's Precision</div>
+            </div>
+            <div class="email-body">
+                <p style="margin-bottom:11px;">Jordan, here's the breakdown:</p>
+                <table style="width:100%;border-collapse:collapse;font-size:0.85rem;margin-bottom:14px;">
+                    <tr style="border-bottom:1px solid #f1f5f9;">
+                        <td style="padding:7px 0;color:#374151;">Driveway Wash</td>
+                        <td style="text-align:right;color:#374151;">$180</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid #f1f5f9;">
+                        <td style="padding:7px 0;color:#374151;">Gutter Clean</td>
+                        <td style="text-align:right;color:#374151;">$100</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:7px 0;font-weight:700;color:#0f172a;">Total</td>
+                        <td style="text-align:right;font-weight:700;color:#0f172a;font-size:1rem;">$280</td>
+                    </tr>
+                </table>
+                <button class="phn-btn success" id="tapApprove">Approve Estimate &#8594;</button>
+                <div style="text-align:center;font-size:0.7rem;color:#94a3b8;margin-top:8px;">No deposit required — invoice sent on approval</div>
+            </div>
+        </div>`
+    },
+    {
+        title: "Approval → Invoice",
+        dur: 10000,   /* ← LINGERS */
+        caption: "One tap. Invoice generated instantly — Troy doesn't send it manually.",
+        tools: ["Invoicing", "Payments"],
+        impactAt: 7,
+        tapTarget: "tapPay",
+        html: `
+        <div class="screen-slide" style="background:#f8fafc;padding:16px;min-height:100%;display:flex;flex-direction:column;">
+            <div style="background:white;padding:20px;border-radius:14px;box-shadow:0 4px 20px rgba(0,0,0,0.07);">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                    <span style="font-size:0.72rem;color:#64748b;font-weight:700;letter-spacing:0.06em;">INVOICE #1042</span>
+                    <span style="background:#fef2f2;color:#dc2626;padding:3px 9px;border-radius:5px;font-size:0.68rem;font-weight:700;">DUE NOW</span>
+                </div>
+                <div style="text-align:center;margin-bottom:20px;">
+                    <div style="font-size:2.8rem;font-weight:800;color:#0f172a;line-height:1;letter-spacing:-0.02em;">$280</div>
+                    <div style="font-size:0.78rem;color:#64748b;margin-top:4px;">Troy's Precision Pressure Washing</div>
+                </div>
+                <button class="phn-btn dark" id="tapPay" style="margin-bottom:7px;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="white"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+                    Pay with Apple Pay
+                </button>
+                <button class="phn-btn indigo">Pay with Card</button>
+            </div>
+        </div>`
+    },
+    {
+        title: "Payment & Receipt",
+        dur: 9000,   /* ← LINGERS */
+        caption: "Payment collected. Receipt sent. Troy got paid without asking once.",
+        tools: ["Stripe", "Email"],
+        impactAt: 8,
+        html: `
+        <div class="screen-slide" style="display:flex;flex-direction:column;">
+            <div class="mail-bar">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                <h3>Mail</h3>
+            </div>
+            <div class="email-body" style="text-align:center;padding-top:2.2rem;">
+                <div style="width:56px;height:56px;background:#dcfce7;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <h3 style="color:#0f172a;margin-bottom:6px;font-size:1rem;">Payment Received</h3>
+                <p style="color:#64748b;font-size:0.85rem;margin-bottom:18px;">Thanks Jordan — see you Friday at 3 PM!</p>
+                <div style="padding:14px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;">
+                    <div style="font-size:0.72rem;color:#64748b;margin-bottom:3px;">Amount Paid</div>
+                    <div style="font-size:1.6rem;font-weight:800;color:#0f172a;letter-spacing:-0.01em;">$280.00</div>
+                </div>
+                <div style="margin-top:12px;font-size:0.72rem;color:#94a3b8;">Receipt saved · Booked Friday 3:00 PM</div>
+            </div>
+        </div>`
+    },
+
+    /* ── REMAINING SCENES (faster pace) ─── */
+    {
+        title: "Day-of Reminder",
+        dur: 5000,
+        caption: "Automated reminder. Jordan confirms with one digit — no-shows cut in half.",
+        tools: ["SMS", "Automation"],
+        impactAt: 9,
+        html: `
+        <div class="screen-slide">
+            <div class="app-bar">
+                <div class="avatar">TP</div>
+                <div>
+                    <h3>Troy's Washing</h3>
+                    <div class="ts">Today 1:00 PM</div>
+                </div>
+            </div>
+            <div class="msg-thread">
+                <div class="msg recv">Reminder: Your appointment is today at 3:00 PM.<br><br>Reply <strong>1</strong> to confirm or <strong>2</strong> to reschedule.</div>
+                <div class="msg sent">1</div>
+                <div class="msg recv">Perfect — see you at 3!</div>
+            </div>
+        </div>`
+    },
+    {
+        title: "Job Complete + Review",
+        dur: 5500,
+        caption: "Job done. Review request sent while satisfaction is highest.",
+        tools: ["SMS", "Review Request"],
+        impactAt: 10,
+        html: `
+        <div class="screen-slide">
+            <div class="app-bar">
+                <div class="avatar">TP</div>
+                <div>
+                    <h3>Troy's Washing</h3>
+                    <div class="ts">Today 4:45 PM</div>
+                </div>
+            </div>
+            <div class="msg-thread">
+                <div class="msg recv">Job's done! Here's the before/after:</div>
+                <div class="msg recv" style="padding:0;overflow:hidden;border-radius:14px 14px 4px 14px;">
+                    <div style="display:flex;height:85px;">
+                        <div style="flex:1;background:#78350f;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.7);font-size:0.65rem;font-weight:700;letter-spacing:0.07em;">BEFORE</div>
+                        <div style="flex:1;background:#bae6fd;display:flex;align-items:center;justify-content:center;color:#0c4a6e;font-size:0.65rem;font-weight:700;letter-spacing:0.07em;">AFTER</div>
+                    </div>
+                </div>
+                <div class="msg recv">Happy with the result? A quick Google review helps us a lot &#128591;<br><br><span style="color:#2563eb;text-decoration:underline;">troyspressure.com/review</span></div>
+            </div>
+        </div>`
+    },
+    {
+        title: "Workflow Complete",
+        dur: 5000,
+        caption: "Entire client lifecycle — automated. Troy did zero admin.",
+        tools: ["CRM"],
+        impactAt: 11,
+        html: `
+        <div class="screen-slide" style="padding:20px 18px;text-align:center;">
+            <div style="width:52px;height:52px;background:#dbeafe;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <h2 style="color:#0f172a;font-size:1.1rem;margin-bottom:4px;">Job Complete</h2>
+            <p style="font-size:0.78rem;color:#64748b;margin-bottom:16px;">Zero admin. Troy just ran his business.</p>
+            <div style="text-align:left;background:#f8fafc;padding:14px;border-radius:11px;border:1px solid #e2e8f0;margin-bottom:14px;">
+                <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;font-size:0.84rem;color:#374151;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="#16a34a"><polyline points="20 6 9 17 4 12"/></svg>Lead captured automatically
+                </div>
+                <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;font-size:0.84rem;color:#374151;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="#16a34a"><polyline points="20 6 9 17 4 12"/></svg>Appointment booked
+                </div>
+                <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;font-size:0.84rem;color:#374151;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="#16a34a"><polyline points="20 6 9 17 4 12"/></svg>Invoice paid &#8212; $280 collected
+                </div>
+                <div style="display:flex;gap:8px;align-items:center;font-size:0.84rem;color:#374151;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="#16a34a"><polyline points="20 6 9 17 4 12"/></svg>Review request sent
+                </div>
+            </div>
+            <p style="font-size:0.7rem;color:#94a3b8;margin-bottom:12px;">All records archived in CRM</p>
+            <button class="phn-btn primary" style="font-size:0.82rem;" onclick="nextScene()">See Troy's Day &#8594;</button>
+        </div>`
+    },
+
+    /* ── PHASE 2: BUYER VICTORY ─────────────── */
+    {
+        title: "Troy's Dashboard",
+        dur: 9000,
+        caption: "System handles the workflow. You deliver the work.",
+        tools: ["CRM", "Dashboard"],
+        impactAt: 11,
+        kind: "victory",
+        html: `
+        <div class="screen-slide" style="background:#f8fafc;min-height:100%;padding:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+                <div>
+                    <div style="font-size:0.65rem;font-weight:700;color:#64748b;letter-spacing:0.07em;text-transform:uppercase;">TODAY</div>
+                    <div style="font-size:0.95rem;font-weight:700;color:#0f172a;">Troy's Overview</div>
+                </div>
+                <div style="width:30px;height:30px;background:#10b981;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+            </div>
+
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <div class="val" style="color:#0f172a;">$560</div>
+                    <div class="lbl">Collected today</div>
+                </div>
+                <div class="stat-card">
+                    <div class="val green">3</div>
+                    <div class="lbl">Jobs confirmed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="val" style="color:#0f172a;">2</div>
+                    <div class="lbl">Invoices paid</div>
+                </div>
+                <div class="stat-card">
+                    <div class="val" style="color:#f59e0b;">1</div>
+                    <div class="lbl">Review pending</div>
+                </div>
+            </div>
+
+            <div style="background:white;border-radius:10px;border:1px solid #e2e8f0;overflow:hidden;margin-bottom:10px;">
+                <div class="job-row">
+                    <div>
+                        <div class="jname">Jordan Lee</div>
+                        <div class="jmeta">Driveway + Gutters · $280</div>
+                    </div>
+                    <span class="badge paid">PAID</span>
+                </div>
+                <div class="job-row">
+                    <div>
+                        <div class="jname">Maria R.</div>
+                        <div class="jmeta">Roof Rinse · $280</div>
+                    </div>
+                    <span class="badge paid">PAID</span>
+                </div>
+                <div class="job-row" style="background:#fffdf5;">
+                    <div>
+                        <div class="jname">K. Thomas</div>
+                        <div class="jmeta">Patio Wash · $200</div>
+                    </div>
+                    <span class="badge review">REVIEW &#8599;</span>
+                </div>
+            </div>
+
+            <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:9px;padding:11px 13px;text-align:center;">
+                <div style="font-size:0.8rem;color:#166534;font-weight:700;margin-bottom:2px;">No manual follow-up required</div>
+                <div style="font-size:0.72rem;color:#4ade80;">System ran itself. Troy delivered the work.</div>
+            </div>
+
+            <button class="phn-btn primary" style="font-size:0.8rem;margin-top:10px;" onclick="resetDemo()">&#9654; Replay Demo</button>
+        </div>`
+    }
+];
+
+/* ── RESCHEDULE SCENARIO (replaces scenes 11-12) ── */
+const rescheduleScenes = [
+    {
+        title: "Reschedule Request",
+        dur: 6000,
+        caption: "Jordan texts '2' — the system handles rescheduling automatically.",
+        tools: ["SMS", "Automation"],
+        impactAt: 9,
+        html: `
+        <div class="screen-slide">
+            <div class="app-bar">
+                <div class="avatar">TP</div>
+                <div><h3>Troy's Washing</h3><div class="ts">Today 1:00 PM</div></div>
+            </div>
+            <div class="msg-thread">
+                <div class="msg recv">Reminder: Your appointment is today at 3:00 PM.<br><br>Reply <strong>1</strong> to confirm or <strong>2</strong> to reschedule.</div>
+                <div class="msg sent">2</div>
+                <div class="msg recv">No problem. Pick a new time:<br><br><span style="color:#2563eb;text-decoration:underline;">troyspressure.com/reschedule/jordan</span></div>
+            </div>
+        </div>`
+    },
+    {
+        title: "New Time Confirmed",
+        dur: 6000,
+        caption: "Jordan rebooks. Calendar updates. Troy is notified. No phone tag.",
+        tools: ["Calendar", "SMS", "CRM"],
+        impactAt: 9,
+        html: `
+        <div class="screen-slide">
+            <div class="app-bar">
+                <div class="avatar">TP</div>
+                <div><h3>Troy's Washing</h3><div class="ts">Today 1:07 PM</div></div>
+            </div>
+            <div class="msg-thread">
+                <div class="msg recv">You're rescheduled for <strong>Monday at 10:00 AM</strong>.
+                    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:7px;padding:9px;margin-top:9px;font-size:0.8rem;color:#166534;line-height:1.65;">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="#16a34a" style="margin-right:3px;"><polyline points="20 6 9 17 4 12"/></svg>Calendar updated<br>
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="#16a34a" style="margin-right:3px;"><polyline points="20 6 9 17 4 12"/></svg>Troy notified<br>
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="#16a34a" style="margin-right:3px;"><polyline points="20 6 9 17 4 12"/></svg>New reminder set
+                    </div>
+                </div>
+            </div>
+        </div>`
+    }
+];
+
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+let scenes     = [...normalScenes];
+let sceneIdx   = 0;
+let isPlaying  = false;
+let progress   = 0;
+let timer      = null;
+let playSpeed  = 1;
+let speedIdx   = 0;
+let isReschedule = false;
+
+const TICK   = 100;
+const SPEEDS = [1, 1.5, 2];
+
+/* ─── AUDIO FEATURE FLAG ───────────────────────────────────────────────────
+   To re-enable audio:
+     1. Set AUDIO_ENABLED = true
+     2. Copy WAV to same folder as this HTML:
+          cp ~/downloads/20260219-215439_220450983.wav ./
+     3. Serve from ~/income-engine-ui/ via:
+          python3 -m http.server 8181 --bind 127.0.0.1 --directory ~/income-engine-ui
+   ─────────────────────────────────────────────────────────────────────── */
+const AUDIO_ENABLED = false;
+
+/* ══ AUDIO SUBSYSTEM (PARKED — set AUDIO_ENABLED = true above to restore) ══
+   AUDIO — ObjectURL attach + revoke
+══════════════════════════════════════════════════════════════════════════ */
+let audioObjectURL = null;
+let audioReady     = false;
+let isSeeking      = false;
+let driftTick      = 0;
+const audioEl      = document.getElementById('demoAudio');
+const voBadge      = document.getElementById('voBadge');
+const audioToast   = document.getElementById('audioToast');
+
+function setVOBadge(ready) {
+    audioReady = ready;
+    voBadge.className = 'vo-badge ' + (ready ? 'ready' : 'off');
+    voBadge.textContent = ready ? 'VO ●' : 'VO (off)';
+}
+
+let toastTimer = null;
+function showToast(msg) {
+    audioToast.textContent = msg;
+    audioToast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => audioToast.classList.remove('show'), 3200);
+}
+
+function revokeAudioURL() {
+    if (!audioObjectURL) return;
+    URL.revokeObjectURL(audioObjectURL);
+    audioObjectURL = null;
+}
+
+async function attachAudio(path) {
+    audioEl.pause();
+    audioEl.removeAttribute('src');
+    audioEl.load();
+    revokeAudioURL();
+    const res = await fetch(path);
+    if (!res.ok) throw new Error(`Audio fetch failed: ${res.status}`);
+    const blob = await res.blob();
+    audioObjectURL = URL.createObjectURL(blob);
+    audioEl.src = audioObjectURL;
+    audioEl.load();
+    return new Promise((resolve, reject) => {
+        const onOk  = () => { cleanup(); setVOBadge(true);  resolve(); };
+        const onErr = () => { cleanup(); setVOBadge(false); reject(new Error('Audio failed to load')); };
+        const cleanup = () => {
+            audioEl.removeEventListener('loadedmetadata', onOk);
+            audioEl.removeEventListener('error', onErr);
+        };
+        audioEl.addEventListener('loadedmetadata', onOk);
+        audioEl.addEventListener('error', onErr);
+    });
+}
+
+function unloadAudio() {
+    audioEl.pause();
+    audioEl.removeAttribute('src');
+    audioEl.load();
+    revokeAudioURL();
+    setVOBadge(false);
+}
+
+function seekAudioTo(sec) {
+    if (!audioEl.src) return;
+    const clamped = Number.isFinite(audioEl.duration)
+        ? Math.max(0, Math.min(sec, audioEl.duration - 0.05))
+        : Math.max(0, sec);
+    audioEl.currentTime = clamped;
+}
+
+function resyncIfDrifted() {
+    if (!AUDIO_ENABLED || !audioReady || !isPlaying || isSeeking) return;
+    driftTick++;
+    if (driftTick % 2 !== 0) return;          // check every ~200ms, not every 100ms
+    const globalSec = elapsedMs() / 1000;
+    const drift = Math.abs((audioEl.currentTime || 0) - globalSec);
+    if (drift > 0.18) seekAudioTo(globalSec);
+}
+
+/* ═══════════════════════════════════════════
+   DOM
+═══════════════════════════════════════════ */
+const $  = id => document.getElementById(id);
+const dom = {
+    sceneList:  $('sceneList'),
+    screen:     $('screenContent'),
+    phone:      $('phoneShell'),
+    pName:      $('pName'),   pDesc:  $('pDesc'),
+    pTools:     $('pTools'),  pImpact:$('pImpact'),
+    mName:      $('mName'),   mDesc:  $('mDesc'),
+    mImpact:    $('mImpact'),
+    caption:    $('caption'),
+    scrubBg:    $('scrubber'),scrubFill:$('scrubFill'),
+    timeDsp:    $('timeDsp'),
+    playBtn:    $('playBtn'), playIcon:$('playIcon'), pauseIcon:$('pauseIcon'),
+    prevBtn:    $('prevBtn'), nextBtn: $('nextBtn'),
+    speedBtn:   $('speedBtn'),
+    clock:      $('clock'),
+    viewSwitch: $('viewSwitch'),
+    mobSelect:  $('mobSelect'),
+    tapCursor:  $('tapCursor'),
+    reschedBtn: $('reschedBtn'),
+};
+
+/* ═══════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════ */
+function totalDur()  { return scenes.reduce((s, sc) => s + sc.dur, 0); }
+function elapsedMs() {
+    let e = 0;
+    for (let i = 0; i < sceneIdx; i++) e += scenes[i].dur;
+    return e + (progress / 100) * scenes[sceneIdx].dur;
+}
+function fmtTime(ms) {
+    const s = Math.floor(ms / 1000);
+    return `${Math.floor(s/60)}:${(s%60).toString().padStart(2,'0')}`;
+}
+
+function impactHTML(at) {
+    return IMPACT.map((txt, i) => {
+        // at = -1 → all pending; at = N → done=<N, current=N, pending=>N
+        let cls = '';
+        if      (at < 0)  cls = '';
+        else if (i <  at) cls = 'done';
+        else if (i === at) cls = 'current';
+        return `<div class="i-row ${cls}"><div class="i-dot"></div><span>${txt}</span></div>`;
+    }).join('');
+}
+
+/* ═══════════════════════════════════════════
+   SCENE MANAGEMENT
+═══════════════════════════════════════════ */
+function buildNav() {
+    dom.sceneList.innerHTML = '';
+    dom.mobSelect.innerHTML = '';
+    scenes.forEach((sc, i) => {
+        const el = document.createElement('div');
+        el.className = 'scene-item' + (sc.kind ? ` ${sc.kind}` : '') + (i === 0 ? ' active' : '');
+        el.innerHTML = `<div class="scene-num">${i + 1}</div><div class="scene-name">${sc.title}</div>`;
+        el.onclick = () => jumpToScene(i);
+        dom.sceneList.appendChild(el);
+
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = `${i+1}. ${sc.title}`;
+        dom.mobSelect.appendChild(opt);
+    });
+}
+
+function loadScene(idx) {
+    if (idx < 0 || idx >= scenes.length) return;
+    sceneIdx = idx;
+    const sc = scenes[idx];
+
+    // Screen
+    dom.screen.innerHTML = sc.html;
+
+    // Phone mode class for prelude dark-status
+    dom.phone.classList.toggle('prelude-mode', sc.kind === 'prelude');
+
+    // Panel text
+    dom.caption.textContent = sc.caption;
+    dom.pName.textContent   = sc.title;
+    dom.pDesc.textContent   = sc.caption;
+    dom.mName.textContent   = sc.title;
+    dom.mDesc.textContent   = sc.caption;
+
+    // Tools
+    dom.pTools.innerHTML = sc.tools.length
+        ? sc.tools.map(t => `<span class="tool-tag">${t}</span>`).join('')
+        : '<span style="font-size:0.78rem;color:#3d5068;">—</span>';
+
+    // Impact log
+    const ih = impactHTML(sc.impactAt);
+    dom.pImpact.innerHTML = ih;
+    dom.mImpact.innerHTML = ih;
+
+    // Clock
+    const baseH = 9 + Math.max(0, idx - 2);
+    const m     = ((idx - 2) * 14) % 60;
+    dom.clock.textContent = `${Math.min(baseH, 17)}:${Math.max(0, m).toString().padStart(2,'0')}`;
+
+    // Nav
+    document.querySelectorAll('.scene-item').forEach((el, i) => {
+        el.classList.toggle('active', i === idx);
+        if (i === idx) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+    dom.mobSelect.value = idx;
+
+    progress = 0;
+    updateUI();
+
+    // Tap animation at 62% through the scene
+    if (sc.tapTarget) {
+        const delay = (sc.dur * 0.62) / playSpeed;
+        setTimeout(() => animateTap(sc.tapTarget), delay);
+    }
+}
+
+function animateTap(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.add('pressing');
+    setTimeout(() => el.classList.remove('pressing'), 380);
+
+    const rect = el.getBoundingClientRect();
+    const cur  = dom.tapCursor;
+    cur.style.left = (rect.left + rect.width  / 2) + 'px';
+    cur.style.top  = (rect.top  + rect.height / 2) + 'px';
+    cur.style.display = 'block';
+    cur.style.animation = 'none';
+    void cur.offsetWidth;
+    cur.style.animation = 'tapRing 0.65s ease-out forwards';
+    setTimeout(() => { cur.style.display = 'none'; }, 750);
+}
+
+/* ═══════════════════════════════════════════
+   PLAYER
+═══════════════════════════════════════════ */
+function updateUI() {
+    const total   = totalDur();
+    const elapsed = elapsedMs();
+    dom.scrubFill.style.width = `${(elapsed / total) * 100}%`;
+    dom.timeDsp.textContent   = `${fmtTime(elapsed)} / ${fmtTime(total)}`;
+}
+
+function togglePlay() {
+    isPlaying = !isPlaying;
+    dom.playIcon .classList.toggle('hidden',  isPlaying);
+    dom.pauseIcon.classList.toggle('hidden', !isPlaying);
+    if (isPlaying) {
+        if (AUDIO_ENABLED) audioEl.play().catch(() => showToast('Tap Play once more to enable audio.'));
+        timer = setInterval(tick, TICK);
+    } else {
+        if (AUDIO_ENABLED) audioEl.pause();
+        clearInterval(timer);
+    }
+}
+
+function tick() {
+    const sc     = scenes[sceneIdx];
+    const adjDur = sc.dur / playSpeed;
+    progress    += (TICK / adjDur) * 100;
+
+    if (progress >= 100) {
+        if (sceneIdx < scenes.length - 1) {
+            loadScene(sceneIdx + 1);
+        } else {
+            progress = 100;
+            updateUI();
+            togglePlay();
+        }
+    } else {
+        resyncIfDrifted();
+        updateUI();
+    }
+}
+
+function prevScene() { if (sceneIdx > 0) loadScene(sceneIdx - 1); }
+function nextScene() { if (sceneIdx < scenes.length - 1) loadScene(sceneIdx + 1); }
+function jumpToScene(idx) { loadScene(idx); }
+
+function cycleSpeed() {
+    speedIdx = (speedIdx + 1) % SPEEDS.length;
+    playSpeed = SPEEDS[speedIdx];
+    dom.speedBtn.textContent = playSpeed + 'x';
+    if (AUDIO_ENABLED) audioEl.playbackRate = playSpeed;
+}
+
+// Scrubber global seek
+$('scrubber').onclick = function(e) {
+    const rect     = this.getBoundingClientRect();
+    const pct      = (e.clientX - rect.left) / rect.width;
+    const targetMs = pct * totalDur();
+    let acc = 0;
+    for (let i = 0; i < scenes.length; i++) {
+        if (acc + scenes[i].dur > targetMs) {
+            loadScene(i);
+            progress = ((targetMs - acc) / scenes[i].dur) * 100;
+            if (AUDIO_ENABLED) seekAudioTo(targetMs / 1000);
+            updateUI();
+            return;
+        }
+        acc += scenes[i].dur;
+    }
+};
+
+/* ═══════════════════════════════════════════
+   RESCHEDULE TOGGLE
+═══════════════════════════════════════════ */
+function toggleReschedule() {
+    const wasPlaying = isPlaying;
+    if (isPlaying) togglePlay();
+    isReschedule = !isReschedule;
+
+    if (isReschedule) {
+        // Replace scenes 11-12 (Day-of Reminder + Job Complete) with reschedule flow
+        scenes = [
+            ...normalScenes.slice(0, 11),
+            ...rescheduleScenes,
+            normalScenes[12], // Workflow Complete
+            normalScenes[13], // Troy's Dashboard
+        ];
+        dom.reschedBtn.textContent = '✕ Normal Scenario';
+        dom.reschedBtn.classList.add('active');
+    } else {
+        scenes = [...normalScenes];
+        dom.reschedBtn.textContent = '▶ Reschedule Scenario';
+        dom.reschedBtn.classList.remove('active');
+    }
+
+    buildNav();
+    loadScene(Math.min(sceneIdx, scenes.length - 1));
+}
+
+/* ═══════════════════════════════════════════
+   VIEW TOGGLES
+═══════════════════════════════════════════ */
+$('viewSwitch').addEventListener('change', e => {
+    $('mainWrap').classList.toggle('client-view', !e.target.checked);
+});
+
+let mobOpen = false;
+function toggleMobOverlay() {
+    mobOpen = !mobOpen;
+    $('mobOverlay').classList.toggle('open', mobOpen);
+    $('mobSysBtn').classList.toggle('open', mobOpen);
+}
+
+function toggleTech() {
+    const list  = $('techList');
+    const arrow = $('techArrow');
+    list.classList.toggle('hidden');
+    arrow.innerHTML = list.classList.contains('hidden') ? '&#9654;' : '&#9660;';
+}
+
+/* ═══════════════════════════════════════════
+   RESET
+═══════════════════════════════════════════ */
+window.resetDemo = function() {
+    jumpToScene(0);
+    if (!isPlaying) togglePlay();
+};
+
+/* ═══════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════ */
+dom.playBtn.onclick = togglePlay;
+dom.prevBtn.onclick = prevScene;
+dom.nextBtn.onclick = nextScene;
+
+// isSeeking guard — suspend drift correction while scrubber is held
+$('scrubber').addEventListener('mousedown',  () => { isSeeking = true; });
+$('scrubber').addEventListener('touchstart', () => { isSeeking = true; }, { passive: true });
+document.addEventListener('mouseup',  () => { isSeeking = false; });
+document.addEventListener('touchend', () => { isSeeking = false; });
+
+buildNav();
+loadScene(0);
+
+if (AUDIO_ENABLED) {
+    attachAudio('./20260219-215439_220450983.wav').catch(() => {
+        // Audio unavailable — demo plays silently, no crash
+    });
+} else {
+    setVOBadge(false);   // shows "VO (off)" immediately, no errors
+}
+
+window.addEventListener('beforeunload', () => { try { unloadAudio(); } catch {} });
+/* ══ END AUDIO SUBSYSTEM (PARKED) ══════════════════════════════════════ */
+</script>
+</body>
+</html>
