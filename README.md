@@ -1,7 +1,8 @@
 # Time Recovery Demo
 
-Version: v1.0
-Status: Audio parked
+Version: v1.1
+Status: Live — Audio parked
+Live URL: https://trd.dgf-creations.com
 Branch: main
 
 ---
@@ -24,8 +25,10 @@ It is a narrative demonstration of:
 - Payment
 - Reschedule handling
 - End-of-day owner dashboard
+- Closing CTA with intake qualifier and calendar booking
 
-The purpose is to make automation emotionally legible.
+The purpose is to make automation emotionally legible — and convert
+that clarity into a booked conversation.
 
 ---
 
@@ -43,6 +46,21 @@ Examples:
 - Roofing
 - Plumbing
 - Small contracting operations
+
+---
+
+## Closing Flow
+
+The demo ends with a two-path CTA:
+
+**Fast path** — ready buyers:
+> Book a 20-Minute Workflow Audit → Google Calendar
+
+**Qualifier path** — curious prospects:
+> See My Business Applied → 3-question intake → Book Your Audit
+
+Both paths land at the same calendar:
+`https://calendar.app.google/rQQ1HoZEWjJjZwXC8`
 
 ---
 
@@ -67,22 +85,36 @@ Note: Audio is currently parked (`AUDIO_ENABLED = false`).
 ## Audio Subsystem
 
 The demo contains a fully implemented audio synchronization system:
-- Blob-based audio loading
-- Drift correction
+- Blob-based audio loading with revoke on unload
+- Drift correction (200ms cadence, 180ms threshold)
 - Playback speed mirroring
-- Scrubber synchronization
-- Autoplay guard
-- Feature flag control
+- Scrubber synchronization with isSeeking guard
+- Autoplay toast on browser policy block
+- VO badge (ready/off state)
+- Feature flag control (`AUDIO_ENABLED`)
 
 To re-enable audio:
 1. Place WAV file next to `landing-demo.html`
-2. Set `AUDIO_ENABLED = true`
+2. Set `AUDIO_ENABLED = true` in `landing-demo.html`
 3. Serve the project folder
+
+Source WAV: `~/downloads/20260219-215439_220450983.wav`
+
+---
+
+## Deployment
+
+- **Platform**: Cloudflare Pages (GitHub OAuth — no secrets required)
+- **Subdomain**: `trd.dgf-creations.com`
+- **Deploy trigger**: Push to `main`
+- **Build**: None (static HTML)
+- **Root redirect**: `index.html` → `ai-time-recovery/landing-demo.html`
 
 ---
 
 ## Version History
 
+- v1.1 — Live on trd.dgf-creations.com. CTA added: audit booking + intake qualifier. Calendar connected. Mobile viewport fixed.
 - v1.0 — Initial release. Audio subsystem parked. Narrative arc finalized.
 
 ---
