@@ -1395,7 +1395,46 @@ const normalScenes = [
                 <div style="font-size:0.72rem;color:#4ade80;">System ran itself. Troy delivered the work.</div>
             </div>
 
-            <button class="phn-btn primary" style="font-size:0.8rem;margin-top:10px;" onclick="resetDemo()">&#9654; Replay Demo</button>
+            <button class="phn-btn primary" style="font-size:0.9rem;margin-top:10px;" onclick="nextScene()">What Would 10 Hours Back Feel Like? &#8594;</button>
+            <button onclick="resetDemo()" style="display:block;width:100%;background:transparent;border:none;color:#94a3b8;font-size:0.72rem;cursor:pointer;margin-top:8px;text-decoration:underline;">&#8635; Replay Demo</button>
+        </div>`
+    },
+
+    /* ── PHASE 3: CLOSING CTA ───────────────── */
+    {
+        title: "Book Your Audit",
+        dur: 30000,
+        caption: "The system just ran itself. Your next move is one tap.",
+        tools: [],
+        impactAt: 11,
+        kind: "victory",
+        html: `
+        <div class="screen-slide" style="background:#0f172a;min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;position:relative;">
+
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:260px;height:260px;background:radial-gradient(circle,rgba(59,130,246,0.13) 0%,transparent 70%);pointer-events:none;"></div>
+
+            <div style="position:relative;z-index:1;width:100%;">
+                <p style="font-size:0.62rem;font-weight:700;letter-spacing:0.15em;color:#475569;text-transform:uppercase;margin-bottom:14px;">You just saw it work.</p>
+
+                <h2 style="font-size:1.15rem;font-weight:800;color:#f8fafc;line-height:1.35;margin-bottom:6px;">What Would 10 Hours<br>Back Feel Like?</h2>
+
+                <p style="font-size:0.68rem;color:#475569;margin-bottom:22px;">Built for service businesses doing $250k–$3M/year.</p>
+
+                <!-- Primary CTA — swap href when Calendly is ready -->
+                <a href="YOUR_CALENDLY_URL" target="_blank" rel="noopener"
+                   style="display:block;background:#2563eb;color:white;padding:14px 18px;border-radius:10px;text-decoration:none;margin-bottom:9px;">
+                    <div style="font-size:0.88rem;font-weight:700;margin-bottom:3px;">Book a 20-Minute Workflow Audit</div>
+                    <div style="font-size:0.7rem;color:#bfdbfe;">No pitch. I map your leak. You keep the plan.</div>
+                </a>
+
+                <!-- Secondary CTA — swap href when intake form is ready -->
+                <a href="YOUR_INTAKE_FORM_URL" target="_blank" rel="noopener"
+                   style="display:block;background:transparent;border:1px solid #334155;color:#94a3b8;padding:12px 18px;border-radius:10px;text-decoration:none;margin-bottom:20px;">
+                    <div style="font-size:0.82rem;font-weight:600;">See My Business Applied to This System</div>
+                </a>
+
+                <button onclick="resetDemo()" style="background:transparent;border:none;color:#334155;font-size:0.7rem;cursor:pointer;text-decoration:underline;">&#8635; Replay Demo</button>
+            </div>
         </div>`
     }
 ];
@@ -1773,6 +1812,7 @@ function toggleReschedule() {
             ...rescheduleScenes,
             normalScenes[12], // Workflow Complete
             normalScenes[13], // Troy's Dashboard
+            normalScenes[14], // CTA
         ];
         dom.reschedBtn.textContent = '✕ Normal Scenario';
         dom.reschedBtn.classList.add('active');
