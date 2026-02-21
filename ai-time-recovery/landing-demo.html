@@ -702,6 +702,25 @@
         /* ══════════════════════════════════════
            RESPONSIVE
         ══════════════════════════════════════ */
+        /* ── INTAKE CHIPS ── */
+        .intake-chip {
+            background: white;
+            border: 1px solid #e2e8f0;
+            color: #374151;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.15s, border-color 0.15s, color 0.15s;
+            line-height: 1;
+        }
+        .intake-chip.selected {
+            background: #2563eb;
+            border-color: #2563eb;
+            color: white;
+        }
+
         /* ── AUDIO TOAST ── */
         #audioToast {
             position: fixed;
@@ -1420,17 +1439,97 @@ const normalScenes = [
 
                 <p style="font-size:0.68rem;color:#475569;margin-bottom:22px;">Built for service businesses doing $250k–$3M/year.</p>
 
-                <!-- Primary CTA — swap href when Calendly is ready -->
-                <a href="YOUR_CALENDLY_URL" target="_blank" rel="noopener"
+                <!-- Primary CTA — direct to calendar for ready buyers -->
+                <a href="https://calendar.app.google/rQQ1HoZEWjJjZwXC8" target="_blank" rel="noopener"
                    style="display:block;background:#2563eb;color:white;padding:14px 18px;border-radius:10px;text-decoration:none;margin-bottom:9px;">
                     <div style="font-size:0.88rem;font-weight:700;margin-bottom:3px;">Book a 20-Minute Workflow Audit</div>
                     <div style="font-size:0.7rem;color:#bfdbfe;">No pitch. I map your leak. You keep the plan.</div>
                 </a>
 
-                <!-- Secondary CTA — swap href when intake form is ready -->
-                <a href="YOUR_INTAKE_FORM_URL" target="_blank" rel="noopener"
-                   style="display:block;background:transparent;border:1px solid #334155;color:#94a3b8;padding:12px 18px;border-radius:10px;text-decoration:none;margin-bottom:20px;">
+                <!-- Secondary CTA — intake qualifier first, then calendar -->
+                <button onclick="nextScene()"
+                   style="display:block;width:100%;background:transparent;border:1px solid #334155;color:#94a3b8;padding:12px 18px;border-radius:10px;cursor:pointer;margin-bottom:20px;">
                     <div style="font-size:0.82rem;font-weight:600;">See My Business Applied to This System</div>
+                </button>
+
+                <button onclick="resetDemo()" style="background:transparent;border:none;color:#334155;font-size:0.7rem;cursor:pointer;text-decoration:underline;">&#8635; Replay Demo</button>
+            </div>
+        </div>`
+    }
+];
+
+    /* ── INTAKE QUALIFIER ───────────────────── */
+    {
+        title: "Business Snapshot",
+        dur: 60000,
+        caption: "Three questions. Then I'll show you exactly where your time is going.",
+        tools: [],
+        impactAt: 11,
+        html: `
+        <div class="screen-slide" style="background:#f8fafc;min-height:100%;padding:18px;">
+            <p style="font-size:0.62rem;font-weight:700;letter-spacing:0.12em;color:#64748b;text-transform:uppercase;margin-bottom:4px;">2-Minute Business Snapshot</p>
+            <h3 style="font-size:0.95rem;font-weight:700;color:#0f172a;margin-bottom:16px;">Tell me about your operation.</h3>
+
+            <div style="margin-bottom:14px;">
+                <p style="font-size:0.72rem;font-weight:600;color:#475569;margin-bottom:7px;">What's your trade?</p>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                    <button data-group="q1" onclick="selectChoice(this,'q1')" class="intake-chip">Pressure Washing</button>
+                    <button data-group="q1" onclick="selectChoice(this,'q1')" class="intake-chip">HVAC</button>
+                    <button data-group="q1" onclick="selectChoice(this,'q1')" class="intake-chip">Roofing</button>
+                    <button data-group="q1" onclick="selectChoice(this,'q1')" class="intake-chip">Plumbing</button>
+                    <button data-group="q1" onclick="selectChoice(this,'q1')" class="intake-chip">Other</button>
+                </div>
+            </div>
+
+            <div style="margin-bottom:14px;">
+                <p style="font-size:0.72rem;font-weight:600;color:#475569;margin-bottom:7px;">Monthly revenue?</p>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                    <button data-group="q2" onclick="selectChoice(this,'q2')" class="intake-chip">Under $10k</button>
+                    <button data-group="q2" onclick="selectChoice(this,'q2')" class="intake-chip">$10k–$25k</button>
+                    <button data-group="q2" onclick="selectChoice(this,'q2')" class="intake-chip">$25k–$83k</button>
+                    <button data-group="q2" onclick="selectChoice(this,'q2')" class="intake-chip">$83k+</button>
+                </div>
+            </div>
+
+            <div style="margin-bottom:20px;">
+                <p style="font-size:0.72rem;font-weight:600;color:#475569;margin-bottom:7px;">Biggest bottleneck?</p>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                    <button data-group="q3" onclick="selectChoice(this,'q3')" class="intake-chip">Chasing invoices</button>
+                    <button data-group="q3" onclick="selectChoice(this,'q3')" class="intake-chip">Scheduling chaos</button>
+                    <button data-group="q3" onclick="selectChoice(this,'q3')" class="intake-chip">Missing follow-ups</button>
+                    <button data-group="q3" onclick="selectChoice(this,'q3')" class="intake-chip">All of it</button>
+                </div>
+            </div>
+
+            <button class="phn-btn primary" onclick="nextScene()">Map My Time Leaks &#8594;</button>
+        </div>`
+    },
+
+    /* ── THANK-YOU + CALENDAR ───────────────── */
+    {
+        title: "Your Map Is Ready",
+        dur: 30000,
+        caption: "Based on what you shared — I already know your leak. Book the audit.",
+        tools: [],
+        impactAt: 11,
+        kind: "victory",
+        html: `
+        <div class="screen-slide" style="background:#0f172a;min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;position:relative;">
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:260px;height:260px;background:radial-gradient(circle,rgba(59,130,246,0.13) 0%,transparent 70%);pointer-events:none;"></div>
+
+            <div style="position:relative;z-index:1;width:100%;">
+                <div style="width:48px;height:48px;background:#1e3a5f;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+
+                <p style="font-size:0.62rem;font-weight:700;letter-spacing:0.15em;color:#475569;text-transform:uppercase;margin-bottom:10px;">Got it.</p>
+                <h2 style="font-size:1.05rem;font-weight:800;color:#f8fafc;line-height:1.35;margin-bottom:8px;">Based on what you shared,<br>I already know your leak.</h2>
+                <p style="font-size:0.78rem;color:#64748b;margin-bottom:22px;">Book your 20-minute audit.<br>I'll map it and hand you the plan.</p>
+
+                <a href="https://calendar.app.google/rQQ1HoZEWjJjZwXC8" target="_blank" rel="noopener"
+                   style="display:block;background:#2563eb;color:white;padding:14px 18px;border-radius:10px;text-decoration:none;margin-bottom:14px;">
+                    <div style="font-size:0.88rem;font-weight:700;margin-bottom:3px;">Book Your 20-Minute Audit</div>
+                    <div style="font-size:0.7rem;color:#bfdbfe;">No pitch. You keep the plan either way.</div>
                 </a>
 
                 <button onclick="resetDemo()" style="background:transparent;border:none;color:#334155;font-size:0.7rem;cursor:pointer;text-decoration:underline;">&#8635; Replay Demo</button>
@@ -1623,6 +1722,12 @@ function elapsedMs() {
     for (let i = 0; i < sceneIdx; i++) e += scenes[i].dur;
     return e + (progress / 100) * scenes[sceneIdx].dur;
 }
+function selectChoice(el, group) {
+    document.querySelectorAll('.intake-chip[data-group="' + group + '"]')
+        .forEach(b => b.classList.remove('selected'));
+    el.classList.add('selected');
+}
+
 function fmtTime(ms) {
     const s = Math.floor(ms / 1000);
     return `${Math.floor(s/60)}:${(s%60).toString().padStart(2,'0')}`;
@@ -1813,6 +1918,8 @@ function toggleReschedule() {
             normalScenes[12], // Workflow Complete
             normalScenes[13], // Troy's Dashboard
             normalScenes[14], // CTA
+            normalScenes[15], // Intake
+            normalScenes[16], // Thank-you + Calendar
         ];
         dom.reschedBtn.textContent = '✕ Normal Scenario';
         dom.reschedBtn.classList.add('active');
